@@ -12,6 +12,7 @@ import poptartfrompluto.explots.EXPlots;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("NullableProblems")
 public class ExchangeExpCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -52,13 +53,13 @@ public class ExchangeExpCommand implements TabExecutor {
         try {
             resident.getTown().addBonusBlocks(1);
         } catch (NotRegisteredException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // Can't throw e, so you have to wrap it which sonarlint doesn't like because "RuntimeException is too generic" tf?
         }
 
         var plotsBought = 1; // May add functionality to purchase multiple plots
         var successMsg = "Successfully traded " + EXPlots.plotExperienceCost + " XP for " + plotsBought + " plot" + (plotsBought != 1 ? "s" : "");
         sender.sendMessage(ChatColor.GREEN + successMsg);
-        EXPlots.plugin.getServer().getConsoleSender().sendMessage(player.getName() + " " + successMsg);
+        EXPlots.getEXPlots().getServer().getConsoleSender().sendMessage(player.getName() + " " + successMsg);
         return true;
     }
 

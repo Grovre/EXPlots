@@ -1,6 +1,5 @@
 package poptartfrompluto.explots;
 
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import poptartfrompluto.explots.commands.ExchangeExpCommand;
 
@@ -8,7 +7,7 @@ import java.util.Objects;
 
 public final class EXPlots extends JavaPlugin {
 
-    public static EXPlots plugin;
+    private static EXPlots plugin;
 
     public static int plotExperienceCost;
 
@@ -25,6 +24,10 @@ public final class EXPlots extends JavaPlugin {
         var cmd = new ExchangeExpCommand();
         Objects.requireNonNull(getCommand("EXPlots")).setExecutor(cmd);
         Objects.requireNonNull(getCommand("EXPlots")).setTabCompleter(cmd);
+    }
+
+    public static EXPlots getEXPlots() {
+        return plugin;
     }
 
     @Override
