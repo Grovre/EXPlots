@@ -1,0 +1,7 @@
+name: EXPlots
+version: '${project.version}'
+main: poptartfrompluto.explots.EXPlots
+api-version: 1.19
+depend: [ Towny ]
+authors: [ Grovre ]
+description: Let players trade experience for plots in Towny
