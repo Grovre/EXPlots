@@ -18,12 +18,13 @@ public final class EXPlots extends JavaPlugin {
 
         plugin = this;
 
+        this.saveDefaultConfig();
         var cfg = getConfig();
         plotExperienceCost = cfg.getInt("experienceCost");
 
         var cmd = new ExchangeExpCommand();
-        Objects.requireNonNull(getServer().getPluginCommand("buyPlotWithXp")).setExecutor(cmd);
-        Objects.requireNonNull(getServer().getPluginCommand("buyPlotWithXp")).setTabCompleter(cmd);
+        Objects.requireNonNull(getCommand("EXPlots")).setExecutor(cmd);
+        Objects.requireNonNull(getCommand("EXPlots")).setTabCompleter(cmd);
     }
 
     @Override
