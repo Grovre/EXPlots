@@ -1,1 +1,2 @@
 experienceCost: 3950 # The amount of experience it costs to buy a plot for your town. Default is level 50, or 3950. https://crumbskull.com/MinecraftXPCalculator/
+scalePerPurchase: 1.125 # The percentage of the previous cost to scale the new cost of another plot. Set to 1 to disable scaling costs. Values below 1 will reduce the cost every purchase. Setting to 0 will make plots free after the first. For example, if the scale was 1.1, the cost of another plot will be 110% of the previous plot cost.

@@ -10,6 +10,7 @@ public final class EXPlots extends JavaPlugin {
     private static EXPlots plugin;
 
     public static int plotExperienceCost;
+    public static double plotCostScale;
 
     @Override
     public void onEnable() {
@@ -20,6 +21,7 @@ public final class EXPlots extends JavaPlugin {
         this.saveDefaultConfig();
         var cfg = getConfig();
         plotExperienceCost = cfg.getInt("experienceCost");
+        plotCostScale = cfg.getDouble("scalePerPurchase");
 
         var cmd = new ExchangeExpCommand();
         Objects.requireNonNull(getCommand("EXPlots")).setExecutor(cmd);

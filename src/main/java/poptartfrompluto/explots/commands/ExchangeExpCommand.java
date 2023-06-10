@@ -8,11 +8,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import poptartfrompluto.explots.EXPlots;
+import poptartfrompluto.explots.UncheckedExplotTransaction;
 
 import java.util.List;
 import java.util.Objects;
 
-@SuppressWarnings("NullableProblems")
 public class ExchangeExpCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -49,15 +49,18 @@ public class ExchangeExpCommand implements TabExecutor {
             return true;
         }
 
-        player.giveExp(-EXPlots.plotExperienceCost);
+        var plotsBeingBought = 1; // May add functionality to purchase multiple plots
+        UncheckedExplotTransaction transaction;
+        String successMsg;
         try {
-            resident.getTown().addBonusBlocks(1);
+            transaction = new UncheckedExplotTransaction(player, resident.getTown());
+            successMsg = "Successfully traded " + transaction.getRequiredExp() + " XP for " + 1 + " plot" + (plotsBeingBought != 1 ? "s" : "");
+            transaction.payForBonusPlots(1);
         } catch (NotRegisteredException e) {
+            successMsg = "Did not succeed in buying plot";
             throw new RuntimeException(e); // Can't throw e, so you have to wrap it which sonarlint doesn't like because "RuntimeException is too generic" tf?
         }
 
-        var plotsBought = 1; // May add functionality to purchase multiple plots
-        var successMsg = "Successfully traded " + EXPlots.plotExperienceCost + " XP for " + plotsBought + " plot" + (plotsBought != 1 ? "s" : "");
         sender.sendMessage(ChatColor.GREEN + successMsg);
         EXPlots.getEXPlots().getServer().getConsoleSender().sendMessage(player.getName() + " " + successMsg);
         return true;
