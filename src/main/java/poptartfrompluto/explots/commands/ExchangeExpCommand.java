@@ -12,12 +12,13 @@ import poptartfrompluto.explots.UncheckedExplotTransaction;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class ExchangeExpCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length != 1) {
-            sender.sendMessage(ChatColor.RED + "There must be only 1 argument");
+        if (args.length != 1 && args.length != 2) {
+            sender.sendMessage(ChatColor.RED + "There must be 2 arguments (buy #)");
             return false;
         }
 
@@ -37,7 +38,7 @@ public class ExchangeExpCommand implements TabExecutor {
         }
 
         if (player.getTotalExperience() < EXPlots.plotExperienceCost) {
-            sender.sendMessage(ChatColor.RED + "You don't have enough experience! You are missing " + (EXPlots.plotExperienceCost - player.getTotalExperience()));
+            sender.sendMessage(ChatColor.RED + "You don't have enough experience! For 1 plot, you need at least " + (EXPlots.plotExperienceCost - player.getTotalExperience()) + " experience");
             return true;
         }
 
@@ -49,12 +50,19 @@ public class ExchangeExpCommand implements TabExecutor {
             return true;
         }
 
-        var plotsBeingBought = 1; // May add functionality to purchase multiple plots
+        int plotsBeingBought;
+        try {
+            plotsBeingBought = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("Your second argument needs to be a number. For example, /explots buy 1");
+            return true;
+        }
+
         UncheckedExplotTransaction transaction;
         String successMsg;
         try {
             transaction = new UncheckedExplotTransaction(player, resident.getTown());
-            successMsg = "Successfully traded " + transaction.getRequiredExp() + " XP for " + 1 + " plot" + (plotsBeingBought != 1 ? "s" : "");
+            successMsg = "Successfully traded " + transaction.getRequiredExp(plotsBeingBought) + " XP for " + 1 + " plot" + (plotsBeingBought != 1 ? "s" : "");
             transaction.payForBonusPlots(1);
         } catch (NotRegisteredException e) {
             successMsg = "Did not succeed in buying plot";
@@ -68,8 +76,23 @@ public class ExchangeExpCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        if (label.equalsIgnoreCase("EXPlots") && args.length == 1)
+        if (!label.equalsIgnoreCase("EXPlots"))
+            return null;
+
+        if (!(sender instanceof Player player)) {
+            return null;
+        }
+
+        var transaction = new UncheckedExplotTransaction(player, TownyAPI.getInstance().getTown(player));
+
+        if (args.length == 1)
             return List.of("buy");
+        if (args.length == 2)
+            return IntStream
+                    .range(1, transaction.getPossibleAmountOfPlots())
+                    .mapToObj(Integer::toString)
+                    .toList();
+
         return null;
     }
 }

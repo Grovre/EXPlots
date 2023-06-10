@@ -3,7 +3,7 @@ package poptartfrompluto.explots;
 import org.bukkit.NamespacedKey;
 
 public enum ExplotPdcKeys {
-    PLOTS_BOUGHT("PLOTS_BOUGHT"),
+    PLOTS_BOUGHT("TOTAL_PLOTS_BOUGHT"),
     ;
 
     NamespacedKey key;

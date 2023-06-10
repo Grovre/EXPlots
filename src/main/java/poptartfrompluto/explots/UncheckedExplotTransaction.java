@@ -13,14 +13,27 @@ public class UncheckedExplotTransaction {
         this.town = town;
     }
 
-    public int getRequiredExp() {
-        var cost = EXPlots.plotExperienceCost;
+    public int getRequiredExp(int plotCount) {
         var scale = EXPlots.plotCostScale;
+        var baseExpCost = EXPlots.plotExperienceCost;
         var plotsBought = getPreviousPlotsBought();
+        var cost = 0;
 
-        cost *= Math.pow(scale, plotsBought);
+        for (var i = 0; i < plotCount; i++)
+            cost += baseExpCost * Math.pow(scale, (double)plotsBought + i);
 
         return cost;
+    }
+
+    public int getPossibleAmountOfPlots() {
+        var exp = player.getTotalExperience();
+        var plots = 0;
+
+        while (exp >= getRequiredExp(plots + 1)) {
+            plots += 1;
+        }
+
+        return plots;
     }
 
     public int getPreviousPlotsBought() {
@@ -33,14 +46,14 @@ public class UncheckedExplotTransaction {
     }
 
     public void payForBonusPlots(int plotCount) {
-        player.giveExp(-getRequiredExp());
+        player.giveExp(-getRequiredExp(plotCount));
         town.addBonusBlocks(plotCount);
 
         var pdc = player.getPersistentDataContainer();
         var plotsBought = pdc.get(ExplotPdcKeys.PLOTS_BOUGHT.key, PersistentDataType.INTEGER);
         plotsBought = plotsBought == null
                 ? 1
-                : plotsBought + 1;
+                : plotsBought + plotCount;
         pdc.set(ExplotPdcKeys.PLOTS_BOUGHT.key, PersistentDataType.INTEGER, plotsBought);
     }
 }
