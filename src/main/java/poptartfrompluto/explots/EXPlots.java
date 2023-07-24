@@ -11,6 +11,7 @@ public final class EXPlots extends JavaPlugin {
 
     public static int plotExperienceCost;
     public static double plotCostScale;
+    public static long plotCooldown;
 
     @Override
     public void onEnable() {
@@ -22,6 +23,7 @@ public final class EXPlots extends JavaPlugin {
         var cfg = getConfig();
         plotExperienceCost = cfg.getInt("experienceCost");
         plotCostScale = cfg.getDouble("scalePerPurchase");
+        plotCooldown = cfg.getLong("cooldown");
 
         var cmd = new ExchangeExpCommand();
         Objects.requireNonNull(getCommand("EXPlots")).setExecutor(cmd);
