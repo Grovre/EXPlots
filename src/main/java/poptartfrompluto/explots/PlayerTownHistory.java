@@ -32,28 +32,27 @@ public class PlayerTownHistory {
             return;
         }
 
-        Arrays.stream(fullPdcString.split(",")).map(s -> {
-            var i = s.lastIndexOf(':'); // may avoid issues if town includes a colon in its name
-            var townName = s.substring(0, i);
-            int boughtPlots;
-            try {
-                boughtPlots = Integer.parseInt(s.substring(i));
-            } catch (NumberFormatException e) {
-                boughtPlots = 0;
-            }
-            return new TownNameAndPlotCountDTO(townName, boughtPlots);
-        }).forEach(dto -> {
-            if (dto.townName == null) {
-                return;
-            }
+        Arrays.stream(fullPdcString.split(","))
+                .map(s -> {
+                    var i = s.lastIndexOf(':'); // may avoid issues if town includes a colon in its name
+                    var townName = s.substring(0, i);
+                    int boughtPlots;
+                    try {
+                        boughtPlots = Integer.parseInt(s.substring(i));
+                    } catch (NumberFormatException e) {
+                        boughtPlots = 0;
+                    }
+                    return new TownNameAndPlotCountDTO(townName, boughtPlots);
+                })
+                .filter(dto -> dto.townName != null)
+                .forEach(dto -> {
+                    var town = TownyAPI.getInstance().getTown(dto.townName);
+                    if (town == null) {
+                        return;
+                    }
 
-            var town = TownyAPI.getInstance().getTown(dto.townName);
-            if (town == null) {
-                return;
-            }
-
-            joinedTownsWithBoughtPlotsCount.put(town, dto.plotCount);
-        });
+                    joinedTownsWithBoughtPlotsCount.put(town, dto.plotCount);
+                });
     }
 
     public void save() {

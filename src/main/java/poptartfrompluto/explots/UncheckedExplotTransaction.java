@@ -2,6 +2,7 @@ package poptartfrompluto.explots;
 
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 
 public class UncheckedExplotTransaction {
     private final Player player;
@@ -41,13 +42,26 @@ public class UncheckedExplotTransaction {
         return townHistory.joinedTownsWithBoughtPlotsCount.getOrDefault(town, 0);
     }
 
+    public long getTimeUntilExplotPurchaseCooldownEnds() {
+        var pdc = player.getPersistentDataContainer();
+        var purchaseTime = pdc.get(ExplotPdcKeys.LAST_PURCHASE_TIME.key, PersistentDataType.LONG);
+        if (purchaseTime == null) {
+            return Long.MIN_VALUE;
+        }
+
+        return purchaseTime + EXPlots.plotCooldown - System.currentTimeMillis();
+    }
+
     public void payForBonusPlots(int plotCount) {
         player.giveExp(-getRequiredExp(plotCount));
         town.addBonusBlocks(plotCount);
 
         var towns = new PlayerTownHistory();
         towns.load(player);
-        towns.joinedTownsWithBoughtPlotsCount.merge(town, 1, Math::addExact);
+        towns.joinedTownsWithBoughtPlotsCount.merge(town, plotCount, Math::addExact);
         towns.save();
+
+        var pdc = player.getPersistentDataContainer();
+        pdc.set(ExplotPdcKeys.LAST_PURCHASE_TIME.key, PersistentDataType.LONG, System.currentTimeMillis());
     }
 }
