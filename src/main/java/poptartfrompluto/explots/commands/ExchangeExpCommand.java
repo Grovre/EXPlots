@@ -19,7 +19,7 @@ public class ExchangeExpCommand implements TabExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length != 1 && args.length != 2) {
             sender.sendMessage(ChatColor.RED + "There must be 2 arguments (buy #)");
-            return false;
+            return true;
         }
 
         if (!args[0].equalsIgnoreCase("buy")) {
@@ -33,12 +33,12 @@ public class ExchangeExpCommand implements TabExecutor {
         }
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("You are not a player and therefore cannot exchange experience for plots");
+            sender.sendMessage(ChatColor.RED + "You are not a player and therefore cannot exchange experience for plots");
             return true;
         }
 
         if (player.getTotalExperience() < EXPlots.plotExperienceCost) {
-            sender.sendMessage(ChatColor.RED + "You don't have enough experience! For 1 plot, you need at least " + (EXPlots.plotExperienceCost - player.getTotalExperience()) + " experience");
+            sender.sendMessage(ChatColor.RED + "You don't have enough experience! For 1 plot, you need at least " + (EXPlots.plotExperienceCost - player.getTotalExperience()) + " more experience");
             return true;
         }
 
@@ -54,7 +54,7 @@ public class ExchangeExpCommand implements TabExecutor {
         try {
             plotsBeingBought = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            sender.sendMessage("Your second argument needs to be a number. For example, /explots buy 1");
+            sender.sendMessage(ChatColor.RED + "Your second argument needs to be a number. For example, /explots buy 1");
             return true;
         }
 
@@ -62,11 +62,17 @@ public class ExchangeExpCommand implements TabExecutor {
         String successMsg;
         try {
             transaction = new UncheckedExplotTransaction(player, resident.getTown());
-            successMsg = "Successfully traded " + transaction.getRequiredExp(plotsBeingBought) + " XP for " + 1 + " plot" + (plotsBeingBought != 1 ? "s" : "");
+            var timeUntilCooldownEnds = transaction.getTimeUntilExplotPurchaseCooldownEnds();
+            if (timeUntilCooldownEnds > 0) {
+                sender.sendMessage(ChatColor.RED + "Your cooldown has not expired. You still have " + (timeUntilCooldownEnds / 1000.0) + " seconds left.");
+                return true;
+            }
+
+            successMsg = "Successfully traded " + transaction.getRequiredExp(plotsBeingBought) + " XP for " + plotsBeingBought + " plot" + (plotsBeingBought != 1 ? "s" : "");
             transaction.payForBonusPlots(1);
         } catch (NotRegisteredException e) {
             successMsg = "Did not succeed in buying plot";
-            throw new RuntimeException(e); // Can't throw e, so you have to wrap it which sonarlint doesn't like because "RuntimeException is too generic" tf?
+            throw new RuntimeException("Player has town but was not registered?", e); // Can't throw e, so you have to wrap it which sonarlint doesn't like because "RuntimeException is too generic" tf?
         }
 
         sender.sendMessage(ChatColor.GREEN + successMsg);
@@ -89,7 +95,7 @@ public class ExchangeExpCommand implements TabExecutor {
             return List.of("buy");
         if (args.length == 2)
             return IntStream
-                    .range(1, transaction.getPossibleAmountOfPlots())
+                    .range(1, transaction.getMaxPossibleAmountOfPlots())
                     .mapToObj(Integer::toString)
                     .toList();
 
