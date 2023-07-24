@@ -2,11 +2,10 @@ package poptartfrompluto.explots;
 
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.entity.Player;
-import org.bukkit.persistence.PersistentDataType;
 
 public class UncheckedExplotTransaction {
-    private Player player;
-    private Town town;
+    private final Player player;
+    private final Town town;
 
     public UncheckedExplotTransaction(Player player, Town town) {
         this.player = player;
@@ -25,7 +24,7 @@ public class UncheckedExplotTransaction {
         return cost;
     }
 
-    public int getPossibleAmountOfPlots() {
+    public int getMaxPossibleAmountOfPlots() {
         var exp = player.getTotalExperience();
         var plots = 0;
 
@@ -37,23 +36,18 @@ public class UncheckedExplotTransaction {
     }
 
     public int getPreviousPlotsBought() {
-        var pdc = player.getPersistentDataContainer();
-        var plotsBought = pdc.get(ExplotPdcKeys.PLOTS_BOUGHT.key, PersistentDataType.INTEGER);
-        if (plotsBought == null)
-            plotsBought = 0;
-
-        return plotsBought;
+        var townHistory = new PlayerTownHistory();
+        townHistory.load(player);
+        return townHistory.joinedTownsWithBoughtPlotsCount.getOrDefault(town, 0);
     }
 
     public void payForBonusPlots(int plotCount) {
         player.giveExp(-getRequiredExp(plotCount));
         town.addBonusBlocks(plotCount);
 
-        var pdc = player.getPersistentDataContainer();
-        var plotsBought = pdc.get(ExplotPdcKeys.PLOTS_BOUGHT.key, PersistentDataType.INTEGER);
-        plotsBought = plotsBought == null
-                ? 1
-                : plotsBought + plotCount;
-        pdc.set(ExplotPdcKeys.PLOTS_BOUGHT.key, PersistentDataType.INTEGER, plotsBought);
+        var towns = new PlayerTownHistory();
+        towns.load(player);
+        towns.joinedTownsWithBoughtPlotsCount.merge(town, 1, Math::addExact);
+        towns.save();
     }
 }

@@ -12,7 +12,7 @@ public class PlayerTownHistory {
     Player player;
     HashMap<Town, Integer> joinedTownsWithBoughtPlotsCount = new HashMap<>();
 
-    private class TownNameAndPlotCountDTO {
+    private static class TownNameAndPlotCountDTO {
         String townName;
         int plotCount;
 
