@@ -1,7 +1,7 @@
 name: EXPlots
 version: '${project.version}'
 main: poptartfrompluto.explots.EXPlots
-api-version: 1.19
+api-version: 1.20
 depend: [ Towny ]
 authors: [ PoptartFromPluto ]
 description: Let players trade experience for plots in Towny
